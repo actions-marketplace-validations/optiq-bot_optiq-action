@@ -1,0 +1,86 @@
+name: OptiQ Code
+description: Mention the bot on an issue and OptiQ Code, running on OptiQ Cloud, answers with a pull request.
+branding:
+  icon: git-pull-request
+  color: green
+inputs:
+  cloud-api-key:
+    description: OptiQ Cloud API key. Create one at https://cloud.mlx-optiq.com/dashboard/keys
+    required: true
+  github-token:
+    description: Use this token instead of the optiq-bot app. A pull request opened with the default GITHUB_TOKEN does not start CI.
+    default: ""
+  trigger:
+    description: The mention that starts a run.
+    default: "@optiq-bot"
+  model:
+    description: OptiQ Cloud model.
+    default: glm-5.3-flash
+  allowed-users:
+    description: Comma-separated logins allowed to start a run, besides the repository's owners, members and collaborators.
+    default: ""
+  timeout-minutes:
+    description: Minutes before the agent stops.
+    default: "60"
+  optiq-version:
+    description: mlx-optiq version to install. Empty means the latest.
+    default: ""
+  max-ci-rounds:
+    description: Times the agent may try to fix failing CI on one pull request before it stops and says so.
+    default: "3"
+  setup:
+    description: Shell command that installs the project's dependencies before the agent starts, such as `pip install -r requirements.txt`. The agent's own commands cannot write outside the repository.
+    default: ""
+runs:
+  using: composite
+  steps:
+    - id: gate
+      shell: bash
+      run: python3 "$GITHUB_ACTION_PATH/src/gate.py"
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        OPTIQ_CLOUD_KEY: ${{ inputs.cloud-api-key }}
+        INPUT_TRIGGER: ${{ inputs.trigger }}
+        INPUT_ALLOWED_USERS: ${{ inputs.allowed-users }}
+    # No credentials stay in .git/config while the agent runs; run.py pushes afterwards.
+    - if: steps.gate.outputs.run == 'true'
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - if: steps.gate.outputs.run == 'true'
+      uses: actions/setup-python@v7
+      with:
+        python-version: "3.12"
+    - if: steps.gate.outputs.run == 'true'
+      shell: bash
+      run: |
+        sudo apt-get install -y -q bubblewrap
+        # Ubuntu 24.04 stops unprivileged user namespaces by default, and bwrap needs them.
+        sudo sysctl -q -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+        pip install -q "mlx-optiq${OPTIQ_VERSION:+==$OPTIQ_VERSION}"
+      env:
+        OPTIQ_VERSION: ${{ inputs.optiq-version }}
+    - if: steps.gate.outputs.run == 'true' && inputs.setup != ''
+      shell: bash
+      run: ${{ inputs.setup }}
+    - if: steps.gate.outputs.run == 'true'
+      shell: bash
+      run: python3 "$GITHUB_ACTION_PATH/src/run.py"
+      env:
+        OPTIQ_HOME: ${{ runner.temp }}/optiq-home
+        OPTIQ_THREAD: ${{ steps.gate.outputs.thread }}
+        INPUT_MAX_CI_ROUNDS: ${{ inputs.max-ci-rounds }}
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        OPTIQ_CLOUD_KEY: ${{ inputs.cloud-api-key }}
+        INPUT_MODEL: ${{ inputs.model }}
+        INPUT_TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
+    # The session, encrypted, so a follow-up continues the same conversation. An artifact
+    # because the cache is read-only for the events this runs on (issues, comments, CI).
+    - if: always() && steps.gate.outputs.run == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: optiq-session-${{ steps.gate.outputs.thread }}
+        path: ${{ runner.temp }}/optiq-session.enc
+        if-no-files-found: ignore
+        retention-days: 30
