@@ -1,11 +1,11 @@
 # OptiQ Code for GitHub
 
-Mention `@optiq-bot` on an issue and OptiQ Code, running on [OptiQ Cloud](https://mlx-optiq.com/cloud), answers with a pull request. It then keeps going on the same pull request when someone comments, reviews it, or CI fails.
+Mention `@optiq-bot` on an issue and OptiQ Code, running on [OptiQ Cloud](https://mlx-optiq.com/cloud?utm_source=github&utm_medium=readme&utm_campaign=optiq_action), answers with a pull request. It then keeps going on the same pull request when someone comments, reviews it, or CI fails.
 
 ## Setup
 
 1. Install the [optiq-bot app](https://github.com/apps/optiq-bot) on the repository.
-2. Create a key on your [OptiQ Cloud dashboard](https://cloud.mlx-optiq.com/dashboard/keys) and add it as the repository secret `OPTIQ_CLOUD_API_KEY`. New accounts start with free credit.
+2. Create a key on your [OptiQ Cloud dashboard](https://cloud.mlx-optiq.com/dashboard/keys?utm_source=github&utm_medium=readme&utm_campaign=optiq_action) and add it as the repository secret `OPTIQ_CLOUD_API_KEY`. New accounts start with free credit.
 3. Add this file as `.github/workflows/optiq.yml`:
 
 ```yaml

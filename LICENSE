@@ -19,18 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-THIRD-PARTY CODE
-
-This distribution vendors subsets of third-party projects so that OptiQ can
-run them without taking a runtime dependency. Each retains its own license,
-included alongside the vendored source:
-
-* optiq/vlm/_mlxvlm/ — a trimmed subset of mlx-vlm v0.6.3
-  (https://github.com/Blaizzy/mlx-vlm), MIT License,
-  Copyright (c) 2025 Prince Canuma. See optiq/vlm/_mlxvlm/LICENSE.
-
-* optiq/runtime/mtp/ — MTPLX, Copyright 2026 Youssof Altoukhi.
-  See optiq/runtime/mtp/LICENSE.MTPLX and optiq/runtime/mtp/NOTICE.MTPLX.
