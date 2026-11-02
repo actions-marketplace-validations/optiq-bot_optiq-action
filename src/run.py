@@ -168,7 +168,7 @@ def reply_of(output: str) -> str:
     lines = output.split("\n  stop:", 1)[0].splitlines()
     last_tool = max((i for i, ln in enumerate(lines) if ln.lstrip().startswith(("⏺", "⎿"))), default=-1)
     # The harness's task checklist and its closing tally are not the agent's words.
-    said = [ln.strip() for ln in lines[last_tool + 1:] if not ln.lstrip().startswith(("\u2713", "done \u2014"))]
+    said = [ln.strip() for ln in lines[last_tool + 1:] if not ln.lstrip().startswith(("\u2713", "done \u2014", "auto-verify after edit"))]
     head = "\n".join(said).strip()
     # No live mentions in text the agent wrote: it could ping people, or restart this run.
     return head[-REPLY_LIMIT:].replace("@", "@​")

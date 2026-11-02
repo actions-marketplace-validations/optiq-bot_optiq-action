@@ -83,7 +83,7 @@ def test_the_message_that_asked_is_always_read():
 
 
 def test_harness_lines_stay_out_of_the_reply():
-    log = "  \u23bf exit 0\n  \u2713 Run tests  (no changes recorded)\n  - Fixed it.\n  done \u2014 0 passed, 1 failed\n\n  stop: done"
+    log = "  \u23bf exit 0\n  \u2713 Run tests  (no changes recorded)\n  auto-verify after edit \u2192 unverified\n  - Fixed it.\n  done \u2014 0 passed, 1 failed\n\n  stop: done"
     assert reply_of(log) == "- Fixed it."
 
 
