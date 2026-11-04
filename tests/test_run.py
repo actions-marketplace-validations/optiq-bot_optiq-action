@@ -95,8 +95,8 @@ def test_every_way_github_prints_the_app_counts_as_the_bot():
 def test_the_agent_inherits_no_github_or_runner_credentials():
     env = agent_env({"PATH": "/bin", "GH_TOKEN": "g", "GITHUB_TOKEN": "g", "INPUT_GITHUB_TOKEN": "g",
                      "ACTIONS_ID_TOKEN_REQUEST_TOKEN": "i", "ACTIONS_ID_TOKEN_REQUEST_URL": "u",
-                     "ACTIONS_RUNTIME_TOKEN": "r", "OPTIQ_CLOUD_KEY": "k", "INPUT_TIMEOUT_MINUTES": "2"})
-    assert env["PATH"] == "/bin" and env["OPTIQ_API_KEY"] == "k" and env["OPTIQ_CODE_WALL_CLOCK"] == "120"
-    for gone in ("GH_TOKEN", "GITHUB_TOKEN", "INPUT_GITHUB_TOKEN", "OPTIQ_CLOUD_KEY", "ACTIONS_ID_TOKEN_REQUEST_TOKEN",
+                     "ACTIONS_RUNTIME_TOKEN": "r", "ACTION_CLOUD_KEY": "k", "INPUT_TIMEOUT_MINUTES": "2"})
+    assert env["PATH"] == "/bin" and env["OPTIQ_API_KEY"] == "k" and env["OPTIQ_WALL_CLOCK"] == "120"
+    for gone in ("GH_TOKEN", "GITHUB_TOKEN", "INPUT_GITHUB_TOKEN", "ACTION_CLOUD_KEY", "ACTIONS_ID_TOKEN_REQUEST_TOKEN",
                  "ACTIONS_ID_TOKEN_REQUEST_URL", "ACTIONS_RUNTIME_TOKEN"):
         assert gone not in env

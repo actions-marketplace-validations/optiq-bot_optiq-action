@@ -33,7 +33,7 @@ def _identity_token() -> str:
 def app_token() -> str:
     body = json.dumps({"identity_token": _identity_token()}).encode()
     req = urllib.request.Request(TOKEN_URL, data=body, method="POST", headers={
-        "Authorization": f"Bearer {os.environ['OPTIQ_CLOUD_KEY']}", "Content-Type": "application/json"})
+        "Authorization": f"Bearer {os.environ['ACTION_CLOUD_KEY']}", "Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.load(r)["token"]

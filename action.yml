@@ -39,7 +39,7 @@ runs:
       run: python3 "$GITHUB_ACTION_PATH/src/gate.py"
       env:
         INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
-        OPTIQ_CLOUD_KEY: ${{ inputs.cloud-api-key }}
+        ACTION_CLOUD_KEY: ${{ inputs.cloud-api-key }}
         INPUT_TRIGGER: ${{ inputs.trigger }}
         INPUT_ALLOWED_USERS: ${{ inputs.allowed-users }}
     # No credentials stay in .git/config while the agent runs; run.py pushes afterwards.
@@ -58,9 +58,9 @@ runs:
         sudo apt-get install -y -q bubblewrap
         # Ubuntu 24.04 stops unprivileged user namespaces by default, and bwrap needs them.
         sudo sysctl -q -w kernel.apparmor_restrict_unprivileged_userns=0 || true
-        pip install -q "mlx-optiq${OPTIQ_VERSION:+==$OPTIQ_VERSION}"
+        pip install -q "mlx-optiq${ACTION_OPTIQ_VERSION:+==$ACTION_OPTIQ_VERSION}"
       env:
-        OPTIQ_VERSION: ${{ inputs.optiq-version }}
+        ACTION_OPTIQ_VERSION: ${{ inputs.optiq-version }}
     - if: steps.gate.outputs.run == 'true' && inputs.setup != ''
       shell: bash
       run: ${{ inputs.setup }}
@@ -69,10 +69,10 @@ runs:
       run: python3 "$GITHUB_ACTION_PATH/src/run.py"
       env:
         OPTIQ_HOME: ${{ runner.temp }}/optiq-home
-        OPTIQ_THREAD: ${{ steps.gate.outputs.thread }}
+        ACTION_THREAD: ${{ steps.gate.outputs.thread }}
         INPUT_MAX_CI_ROUNDS: ${{ inputs.max-ci-rounds }}
         INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
-        OPTIQ_CLOUD_KEY: ${{ inputs.cloud-api-key }}
+        ACTION_CLOUD_KEY: ${{ inputs.cloud-api-key }}
         INPUT_MODEL: ${{ inputs.model }}
         INPUT_TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
     # The session, encrypted, so a follow-up continues the same conversation. An artifact

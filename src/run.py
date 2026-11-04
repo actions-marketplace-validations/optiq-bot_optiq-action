@@ -123,7 +123,7 @@ def sealed() -> Path:
 
 
 def _openssl_env() -> dict:
-    return {**os.environ, "OPTIQ_SEAL": os.environ["OPTIQ_CLOUD_KEY"]}
+    return {**os.environ, "ACTION_SEAL": os.environ["ACTION_CLOUD_KEY"]}
 
 
 def restore_session(number: str) -> bool:
@@ -140,7 +140,7 @@ def restore_session(number: str) -> bool:
         with zipfile.ZipFile(tmp / "session.zip") as z:
             z.extractall(tmp / "session-in")
         plain = subprocess.run(
-            ["openssl", "enc", "-d", "-aes-256-cbc", "-pbkdf2", "-pass", "env:OPTIQ_SEAL",
+            ["openssl", "enc", "-d", "-aes-256-cbc", "-pbkdf2", "-pass", "env:ACTION_SEAL",
              "-in", str(tmp / "session-in" / sealed().name)],
             check=True, capture_output=True, env=_openssl_env()).stdout
         subprocess.run(["tar", "-xz", "-C", str(session_dir())], input=plain, check=True)
@@ -156,7 +156,7 @@ def seal_session() -> None:
     if not session_dir().exists():
         return
     tar = subprocess.run(["tar", "-cz", "-C", str(session_dir()), "."], check=True, capture_output=True).stdout
-    subprocess.run(["openssl", "enc", "-aes-256-cbc", "-pbkdf2", "-pass", "env:OPTIQ_SEAL", "-out", str(sealed())],
+    subprocess.run(["openssl", "enc", "-aes-256-cbc", "-pbkdf2", "-pass", "env:ACTION_SEAL", "-out", str(sealed())],
                    input=tar, check=True, env=_openssl_env())
 
 
@@ -187,10 +187,10 @@ def ci_rounds(comments: list[dict]) -> int:
 def agent_env(env: dict) -> dict:
     """What the agent's process inherits. No GitHub token, and none of the runner's own
     credentials: with the identity-token pair it could get a GitHub token for itself."""
-    drop = ("GH_TOKEN", "GITHUB_TOKEN", "OPTIQ_CLOUD_KEY", "INPUT_GITHUB_TOKEN")
+    drop = ("GH_TOKEN", "GITHUB_TOKEN", "ACTION_CLOUD_KEY", "INPUT_GITHUB_TOKEN")
     kept = {k: v for k, v in env.items() if k not in drop and not k.startswith("ACTIONS_")}
-    kept.update(OPTIQ_BASE_URL=CLOUD_V1, OPTIQ_API_KEY=env["OPTIQ_CLOUD_KEY"], NO_COLOR="1",
-                OPTIQ_CODE_WALL_CLOCK=str(int(env.get("INPUT_TIMEOUT_MINUTES") or 60) * 60))
+    kept.update(OPTIQ_BASE_URL=CLOUD_V1, OPTIQ_API_KEY=env["ACTION_CLOUD_KEY"], NO_COLOR="1",
+                OPTIQ_WALL_CLOCK=str(int(env.get("INPUT_TIMEOUT_MINUTES") or 60) * 60))
     return kept
 
 
@@ -219,7 +219,7 @@ def run_agent(goal: str, resume: bool) -> tuple[bool, str]:
 
 
 def work(event: dict) -> int:
-    number = os.environ["OPTIQ_THREAD"]
+    number = os.environ["ACTION_THREAD"]
     me = auth.identity()
     react(event)
 
